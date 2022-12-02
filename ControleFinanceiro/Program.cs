@@ -1,5 +1,7 @@
 using ControleFinanceiro.Repository.DBContext;
+using ControleFinanceiro.Repository.Repositories;
 using Microsoft.EntityFrameworkCore;
+using Repository.Abstractions;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -9,6 +11,8 @@ builder.Services.AddDbContext<FinancialControlContext>(options =>
 {
     options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection"));
 });
+builder.Services.AddTransient<IUserRepository, UserRepository>();
+builder.Services.AddTransient<ITransactionRepository, TransactionRepository>();
 
 var app = builder.Build();
 

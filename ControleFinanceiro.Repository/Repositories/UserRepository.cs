@@ -1,14 +1,13 @@
 ﻿using ControleFinanceiro.Domain.Models;
 using ControleFinanceiro.Repository.DBContext;
+using Repository.Abstractions;
 
 namespace ControleFinanceiro.Repository.Repositories;
 
-public class UserRepository : AbstractRepository<UserViewModel>
+public class UserRepository : AbstractRepository<UserViewModel>, IUserRepository
 {
-    private readonly FinancialControlContext _context;
-
-    public UserRepository(FinancialControlContext context) : base(context)
+    public UserRepository(FinancialControlContext context)
+        : base(context)
     {
-        _context = context;
     }
 }

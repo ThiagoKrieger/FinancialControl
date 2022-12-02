@@ -1,6 +1,8 @@
-﻿namespace ControleFinanceiro.Domain.Models;
+﻿using Domain.Abstractions;
 
-public class UserViewModel
+namespace ControleFinanceiro.Domain.Models;
+
+public class UserViewModel : IEntity
 {
     public int Id { get; set; }
     public int Age { get; set; }

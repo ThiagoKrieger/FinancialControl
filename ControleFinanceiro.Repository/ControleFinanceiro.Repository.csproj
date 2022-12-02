@@ -28,6 +28,7 @@
 
     <ItemGroup>
       <ProjectReference Include="..\ControleFinanceiro.Domain\ControleFinanceiro.Domain.csproj" />
+      <ProjectReference Include="..\Repository.Abstractions\Repository.Abstractions.csproj" />
     </ItemGroup>
 
 </Project>

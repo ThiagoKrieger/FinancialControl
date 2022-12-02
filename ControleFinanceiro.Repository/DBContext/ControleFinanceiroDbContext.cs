@@ -8,8 +8,8 @@ public class FinancialControlContext : DbContext
     public DbSet<UserViewModel> UserViewModels { get; set; }
     public DbSet<TransactionViewModel> TransactionViewModels { get; set; }
 
-    public FinancialControlContext(DbContextOptions<FinancialControlContext> optionsBuilder) : base(optionsBuilder)
+    public FinancialControlContext(DbContextOptions<FinancialControlContext> optionsBuilder)
+        : base(optionsBuilder)
     {
-        
     }
 }

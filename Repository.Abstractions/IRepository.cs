@@ -2,9 +2,15 @@
 
 namespace Repository.Abstractions;
 
-public interface IRepository<TEntity> where TEntity : IEntity
+public interface IRepository<TEntity> : IDisposable
+    where TEntity : IEntity
 {
     public Task<TEntity?> GetByKeyAsync(int key, CancellationToken token);
 
-    public void SaveChanges();
+    Task<IEnumerable<TEntity>> GetAsync(CancellationToken token);
+
+    Task UpdateAsync(TEntity entity, CancellationToken token);
+
+    Task<bool> AddAsync(TEntity entity, CancellationToken token);
+    Task<bool> RemoveAsync(int id, CancellationToken token);
 }

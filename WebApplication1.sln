@@ -12,6 +12,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Repository.Abstractions", "
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Domain.Abstractions", "Domain.Abstractions\Domain.Abstractions.csproj", "{6A56743D-4575-4A1A-91C4-3630C3F42F66}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Utils", "Utils\Utils.csproj", "{6DB505BD-9D37-41EC-B194-0F16D9D17A9C}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -38,6 +40,10 @@ Global
 		{6A56743D-4575-4A1A-91C4-3630C3F42F66}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{6A56743D-4575-4A1A-91C4-3630C3F42F66}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{6A56743D-4575-4A1A-91C4-3630C3F42F66}.Release|Any CPU.Build.0 = Release|Any CPU
+		{6DB505BD-9D37-41EC-B194-0F16D9D17A9C}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{6DB505BD-9D37-41EC-B194-0F16D9D17A9C}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{6DB505BD-9D37-41EC-B194-0F16D9D17A9C}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{6DB505BD-9D37-41EC-B194-0F16D9D17A9C}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(NestedProjects) = preSolution
 		{5ADEB428-93E1-4752-8A17-F6EE9A9096CE} = {323FD156-348F-41FE-8CEC-2FE125AEF9BD}

@@ -1,3 +1,4 @@
+using ControleFinanceiro.Repository.BusinessLogic;
 using ControleFinanceiro.Repository.DBContext;
 using ControleFinanceiro.Repository.Repositories;
 using Microsoft.EntityFrameworkCore;
@@ -14,6 +15,7 @@ builder.Services.AddDbContext<FinancialControlContext>(options =>
 builder.Services.AddTransient<IUserRepository, UserRepository>();
 builder.Services.AddTransient<ITransactionRepository, TransactionRepository>();
 builder.Services.AddTransient<IUserDataProvider, UserDataProvider>();
+builder.Services.AddTransient<IUserBusinessLogic, UserBusinessLogic>();
 
 var app = builder.Build();
 

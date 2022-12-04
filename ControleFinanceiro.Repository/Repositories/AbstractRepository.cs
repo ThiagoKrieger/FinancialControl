@@ -32,7 +32,7 @@ public abstract class AbstractRepository<TEntity> : IRepository<TEntity>
 
     public async Task UpdateAsync(TEntity entity, CancellationToken token)
     {
-        if (await GetByKeyAsync(entity.Id, token) is not null)
+        if (await GetByKeyAsync(entity.Id, token) is null)
             return;
         Context.Update(entity);
         await Context.SaveChangesAsync(token);

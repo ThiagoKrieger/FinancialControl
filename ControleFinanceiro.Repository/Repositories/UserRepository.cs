@@ -14,7 +14,7 @@ public class UserRepository : AbstractRepository<User>, IUserRepository
 
     public async Task<User?> GetUserWithTransactions(int id, CancellationToken token)
     {
-        return await _context.Set<User>()
+        return await Context.Set<User>()
             .Where(user => user.Id == id)
             .Include(user => user.Transactions)
             .SingleAsync(token)

@@ -8,21 +8,21 @@ namespace ControleFinanceiro.Repository.Repositories;
 public abstract class AbstractRepository<TEntity> : IRepository<TEntity>
     where TEntity : class, IEntity
 {
-    protected readonly FinancialControlContext _context;
+    protected readonly FinancialControlContext Context;
 
     protected AbstractRepository(FinancialControlContext context)
     {
-        _context = context;
+        Context = context;
     }
 
     public async Task<IEnumerable<TEntity>> GetAsync(CancellationToken token)
     {
-        return await _context.Set<TEntity>().ToListAsync(token);
+        return await Context.Set<TEntity>().ToListAsync(token);
     }
 
     public async Task<TEntity?> GetByKeyAsync(int key, CancellationToken token)
     {
-        return await _context.Set<TEntity>()
+        return await Context.Set<TEntity>()
             .FindAsync(new object?[]
                 {
                     key, token
@@ -34,13 +34,13 @@ public abstract class AbstractRepository<TEntity> : IRepository<TEntity>
     {
         if (await GetByKeyAsync(entity.Id, token) is not null)
             return;
-        _context.Update(entity);
-        await _context.SaveChangesAsync(token);
+        Context.Update(entity);
+        await Context.SaveChangesAsync(token);
     }
 
     public async Task<bool> AddAsync(TEntity entity, CancellationToken token)
     {
-        _context.Add(entity);
+        Context.Add(entity);
         SaveChanges();
 
         return await GetByKeyAsync(entity.Id, token) is not null;
@@ -52,7 +52,7 @@ public abstract class AbstractRepository<TEntity> : IRepository<TEntity>
         if (entity is null)
             return false;
 
-        _context.Remove(entity);
+        Context.Remove(entity);
         SaveChanges();
 
         return true;
@@ -60,11 +60,8 @@ public abstract class AbstractRepository<TEntity> : IRepository<TEntity>
 
     private void SaveChanges()
     {
-        _context.SaveChanges();
+        Context.SaveChanges();
     }
 
-    public void Dispose()
-    {
-        _context.Dispose();
-    }
+    public void Dispose() => Context.Dispose();
 }

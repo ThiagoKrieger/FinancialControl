@@ -19,12 +19,4 @@
       <ProjectReference Include="..\ControleFinanceiro.Domain\ControleFinanceiro.Domain.csproj" />
       <ProjectReference Include="..\ControleFinanceiro.Repository\ControleFinanceiro.Repository.csproj" />
     </ItemGroup>
-    <ItemGroup>
-      <Folder Include="Pages" />
-    </ItemGroup>
-    <ItemGroup>
-      <Compile Update="Views\Transactions\TransactionViewModel.cs">
-        <DependentUpon>Create.cshtml</DependentUpon>
-      </Compile>
-    </ItemGroup>
 </Project>

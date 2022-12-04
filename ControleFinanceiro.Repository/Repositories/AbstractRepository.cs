@@ -8,7 +8,7 @@ namespace ControleFinanceiro.Repository.Repositories;
 public abstract class AbstractRepository<TEntity> : IRepository<TEntity>
     where TEntity : class, IEntity
 {
-    private readonly FinancialControlContext _context;
+    protected readonly FinancialControlContext _context;
 
     protected AbstractRepository(FinancialControlContext context)
     {

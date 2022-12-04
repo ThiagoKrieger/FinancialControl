@@ -3,7 +3,7 @@ using Domain.Abstractions;
 
 namespace ControleFinanceiro.Domain.Models;
 
-public class TransactionViewModel : IEntity
+public class Transaction : IEntity
 {
     public int Id { get; set; }
     public string Description { get; set; }

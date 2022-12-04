@@ -13,6 +13,7 @@ builder.Services.AddDbContext<FinancialControlContext>(options =>
 });
 builder.Services.AddTransient<IUserRepository, UserRepository>();
 builder.Services.AddTransient<ITransactionRepository, TransactionRepository>();
+builder.Services.AddTransient<IUserDataProvider, UserDataProvider>();
 
 var app = builder.Build();
 
@@ -33,8 +34,6 @@ app.UseAuthorization();
 
 app.MapControllerRoute(name: "default",
     pattern: "{controller=Home}/{action=Index}/{id?}");
-app.MapControllerRoute(name: "user",
-    pattern: "{controller=User}/{action=Get}/{id?}");
 
 
 app.Run();

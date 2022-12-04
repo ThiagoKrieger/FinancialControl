@@ -2,7 +2,7 @@
 
 namespace Repository.Abstractions;
 
-public interface ITransactionRepository : IRepository<TransactionViewModel>
+public interface ITransactionRepository : IRepository<Transaction>
 {
     
 }

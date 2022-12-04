@@ -2,11 +2,11 @@
 
 namespace ControleFinanceiro.Domain.Models;
 
-public class UserViewModel : IEntity
+public class User : IEntity
 {
     public int Id { get; set; }
     public int Age { get; set; }
     public string Name { get; set; }
     public float Balance { get; set; }
-    public ICollection<TransactionViewModel>? TransactionViewModels { get; set; }
+    public ICollection<Transaction>? TransactionViewModels { get; set; }
 }

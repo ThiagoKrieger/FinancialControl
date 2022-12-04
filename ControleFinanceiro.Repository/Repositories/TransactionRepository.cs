@@ -4,7 +4,7 @@ using Repository.Abstractions;
 
 namespace ControleFinanceiro.Repository.Repositories;
 
-public class TransactionRepository : AbstractRepository<TransactionViewModel>, ITransactionRepository
+public class TransactionRepository : AbstractRepository<Transaction>, ITransactionRepository
 {
     public TransactionRepository(FinancialControlContext context)
         : base(context)

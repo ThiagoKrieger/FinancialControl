@@ -43,14 +43,14 @@ public class UserController : Controller
     // POST: User/Create
     [HttpPost]
     [ValidateAntiForgeryToken]
-    public async Task<IActionResult> Create([Bind("Age,Name,Balance")] UserViewModel userViewModel,
+    public async Task<IActionResult> Create([Bind("Age,Name,Balance")] User user,
         CancellationToken cancellationToken)
     {
         if (!ModelState.IsValid)
-            return View(userViewModel);
+            return View(user);
 
-        if (!await _repository.AddAsync(userViewModel, cancellationToken))
-            return Problem($"Wasn't able to save {userViewModel.Name}");
+        if (!await _repository.AddAsync(user, cancellationToken))
+            return Problem($"Wasn't able to save {user.Name}");
 
         return RedirectToAction(nameof(Index));
     }
@@ -69,23 +69,23 @@ public class UserController : Controller
     [HttpPost]
     [ValidateAntiForgeryToken]
     public async Task<IActionResult> Edit(int id,
-        [Bind("Id,Age,Name,Balance")] UserViewModel userViewModel,
+        [Bind("Id,Age,Name,Balance")] User user,
         CancellationToken cancellationToken)
     {
-        if (id != userViewModel.Id)
+        if (id != user.Id)
         {
             return NotFound();
         }
 
         if (!ModelState.IsValid)
-            return View(userViewModel);
+            return View(user);
         try
         {
-            await _repository.UpdateAsync(userViewModel, cancellationToken);
+            await _repository.UpdateAsync(user, cancellationToken);
         }
         catch (DbUpdateConcurrencyException)
         {
-            if (!await UserViewModelExists(userViewModel.Id, cancellationToken))
+            if (!await UserViewModelExists(user.Id, cancellationToken))
             {
                 return NotFound();
             }

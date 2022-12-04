@@ -2,6 +2,6 @@
 
 namespace Repository.Abstractions;
 
-public interface IUserRepository : IRepository<UserViewModel>
+public interface IUserRepository : IRepository<User>
 {
 }

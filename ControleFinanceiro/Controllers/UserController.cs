@@ -1,4 +1,5 @@
-﻿using ControleFinanceiro.Domain.Models;
+﻿using System.Collections;
+using ControleFinanceiro.Domain.Models;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Repository.Abstractions;
@@ -8,17 +9,31 @@ namespace WebApplication1.Controllers;
 public class UserController : Controller
 {
     private readonly IUserRepository _repository;
+    private readonly IUserBusinessLogic _businessLogic;
 
-    public UserController(IUserRepository userRepository)
+    public UserController(IUserRepository userRepository, IUserBusinessLogic businessLogic)
     {
         _repository = userRepository;
+        _businessLogic = businessLogic;
     }
 
     // GET: User
     public async Task<IActionResult> Index(CancellationToken cancellationToken)
     {
-        var userList = await _repository.GetAsync(cancellationToken);
+        var userList = await _repository.GetAllUsersWithTransactions(cancellationToken);
 
+        var financialInfo = new Dictionary<int, Tuple<float, float>>();
+        
+        foreach (var user in userList)
+        {
+            if (user is null)
+                continue;
+            var incomesAndOutcomes = await _businessLogic.GetIncomeAndOutcome(user.Id, cancellationToken);
+            financialInfo.Add(user.Id, incomesAndOutcomes);
+        }
+
+        var teste = financialInfo[userList.First().Id].Item1;
+        ViewBag.FinancialInfo = financialInfo;
         return View(userList);
     }
 

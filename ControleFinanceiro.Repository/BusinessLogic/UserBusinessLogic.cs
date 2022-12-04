@@ -12,11 +12,35 @@ public class UserBusinessLogic : IUserBusinessLogic
         _userRepository = userRepository;
     }
 
+    public async Task<Tuple<float, float>> GetIncomeAndOutcome(int userId, CancellationToken token)
+    {
+        var user = await _userRepository.GetUserWithTransactions(userId, token).ConfigureAwait(false);
+        float incomes = 0;
+        float outcomes = 0;
+
+        if (user.Transactions == null)
+            return new Tuple<float, float>(incomes, outcomes);
+        foreach (var transaction in user.Transactions)
+        {
+            switch (transaction.Type)
+            {
+                case TransactionType.Income:
+                    incomes += transaction.Value;
+                    break;
+                case TransactionType.Outcome:
+                    outcomes += transaction.Value;
+                    break;
+                default:
+                    throw new ArgumentOutOfRangeException();
+            }
+        }
+        return new Tuple<float, float>(incomes, outcomes);
+    }
+
     public async Task SetBalances(int id, CancellationToken token)
     {
         var user = await _userRepository.GetUserWithTransactions(id, token);
-        if (user is null)
-            return;
+
         if (user.Transactions is null || user.Transactions.Count == 0)
         {
             user.Balance = 0;

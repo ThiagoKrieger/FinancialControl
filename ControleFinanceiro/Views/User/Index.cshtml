@@ -21,6 +21,8 @@
             <th>
                 @Html.DisplayNameFor(model => model.Name)
             </th>
+            <th>Incomes</th>
+            <th>Outcomes</th>
             <th>
                 @Html.DisplayNameFor(model => model.Balance)
             </th>
@@ -39,6 +41,8 @@
         <td>
             @Html.DisplayFor(modelItem => item.Name)
         </td>
+        <td>@ViewBag.FinancialInfo[item.Id].Item1</td>
+        <td>@ViewBag.FinancialInfo[item.Id].Item2</td>
         <td>
             @Html.DisplayFor(modelItem => item.Balance)
         </td>

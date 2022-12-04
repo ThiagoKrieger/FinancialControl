@@ -87,7 +87,8 @@ namespace WebApplication1.Controllers
                 return View(transaction);
             try
             {
-                await _repository.UpdateAsync(transaction, token);
+                await _repository.UpdateAsync(transaction, token).ConfigureAwait(false);
+                await _businessLogic.SetBalances(transaction.UserId, token).ConfigureAwait(false);
             }
             catch (DbUpdateConcurrencyException)
             {
@@ -116,8 +117,13 @@ namespace WebApplication1.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> DeleteConfirmed(int id, CancellationToken token)
         {
+            var toDelete = await _repository.GetByKeyAsync(id, token);
+            var userToUpdate = toDelete?.UserId ?? 0;
+
             if (!await _repository.RemoveAsync(id, token))
                 return Problem("Wasn't able to delete the transaction");
+            if(userToUpdate != 0)
+                await _businessLogic.SetBalances(userToUpdate, token).ConfigureAwait(false);
             return RedirectToAction(nameof(Index));
         }
 

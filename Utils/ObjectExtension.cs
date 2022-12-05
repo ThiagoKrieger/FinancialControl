@@ -29,12 +29,6 @@ public static class ObjectExtension
             if (!targetProperties.TryGetValue(name, out var targetProperty))
                 continue;
 
-            if (targetProperty.IsDefined(typeof(NotMappedAttribute)))
-                continue;
-
-            if (!targetProperty.PropertyType.IsValueType && targetProperty.PropertyType != typeof(string))
-                continue;
-
             var sourceValue = sourceProperty.GetValue(source, null);
             var targetValue = targetProperty.GetValue(target, null);
 

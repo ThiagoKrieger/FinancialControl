@@ -1,11 +1,16 @@
+using ControleFinanceiro.Domain.Models;
 using ControleFinanceiro.Repository.BusinessLogic;
 using ControleFinanceiro.Repository.DBContext;
 using ControleFinanceiro.Repository.Repositories;
 using FluentValidation;
 using Microsoft.AspNetCore.Antiforgery;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.Metadata.Conventions;
 using Microsoft.OpenApi.Models;
 using Repository.Abstractions;
+using WebApplication1.Contracts.Request;
+using WebApplication1.Contracts.Response;
+using WebApplication1.Contracts.Transformations;
 using WebApplication1.Installers;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -24,6 +29,9 @@ builder.Services.AddTransient<IUserRepository, UserRepository>();
 builder.Services.AddTransient<ITransactionRepository, TransactionRepository>();
 builder.Services.AddTransient<IUserDataProvider, UserDataProvider>();
 builder.Services.AddTransient<IUserBusinessLogic, UserBusinessLogic>();
+builder.Services.AddTransient<IUserTransformation, UserToResponseTransformation>();
+builder.Services.AddTransient<IRequestToUserTransformation, RequestToUserTransformation>();
+
 builder.Services.AddSwaggerGen(x =>
 {
     x.SwaggerDoc("v1", new OpenApiInfo{Title = "Controle Financeiro", Version = "v1"});

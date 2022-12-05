@@ -2,7 +2,7 @@
 
 public class SwaggerOption
 {
-    public string JsonRoute { get; set; }
-    public string Description { get; set; }
-    public string UiEndpoint { get; set; }
+    public string JsonRoute { get; set; } = string.Empty;
+    public string Description { get; set; } = string.Empty;
+    public string UiEndpoint { get; set; } = string.Empty;
 }

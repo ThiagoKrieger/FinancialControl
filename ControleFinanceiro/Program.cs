@@ -1,6 +1,7 @@
 using ControleFinanceiro.Repository.BusinessLogic;
 using ControleFinanceiro.Repository.DBContext;
 using ControleFinanceiro.Repository.Repositories;
+using FluentValidation;
 using Microsoft.EntityFrameworkCore;
 using Repository.Abstractions;
 
@@ -8,10 +9,13 @@ var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
 builder.Services.AddControllersWithViews();
+builder.Services.AddValidatorsFromAssemblyContaining<FinancialControlContext>();
+
 builder.Services.AddDbContext<FinancialControlContext>(options =>
 {
     options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection"));
 });
+
 builder.Services.AddTransient<IUserRepository, UserRepository>();
 builder.Services.AddTransient<ITransactionRepository, TransactionRepository>();
 builder.Services.AddTransient<IUserDataProvider, UserDataProvider>();

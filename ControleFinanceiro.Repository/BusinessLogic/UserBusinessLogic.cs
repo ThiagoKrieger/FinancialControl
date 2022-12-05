@@ -31,7 +31,7 @@ public class UserBusinessLogic : IUserBusinessLogic
                     outcomes += transaction.Value;
                     break;
                 default:
-                    throw new ArgumentOutOfRangeException();
+                    throw new ArgumentOutOfRangeException($"There is no such type as {transaction.Type}");
             }
         }
         return new Tuple<float, float>(incomes, outcomes);

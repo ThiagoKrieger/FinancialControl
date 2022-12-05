@@ -63,5 +63,9 @@ public abstract class AbstractRepository<TEntity> : IRepository<TEntity>
         Context.SaveChanges();
     }
 
-    public void Dispose() => Context.Dispose();
+    public void Dispose()
+    {
+        GC.SuppressFinalize(this);
+        Context.Dispose();
+    }
 }

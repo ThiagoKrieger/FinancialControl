@@ -31,7 +31,7 @@ public class TransactionsController : Controller
     // GET: Transactions
     public async Task<IActionResult> Index(CancellationToken token)
     {
-        return View(await _repository.GetAsync(token));
+        return Ok(await _repository.GetAsync(token));
     }
 
     // GET: Transactions/Details/5
@@ -42,7 +42,7 @@ public class TransactionsController : Controller
         if (transactionViewModel is null)
             return NotFound();
 
-        return View(transactionViewModel);
+        return Ok(transactionViewModel);
     }
 
     // GET: Transactions/Create
@@ -51,7 +51,7 @@ public class TransactionsController : Controller
         var userList = await _dataProvider.GetItems(token);
         ViewBag.ListOfUser = userList;
 
-        return View();
+        return Ok();
     }
 
     // POST: Transactions/Create
@@ -63,7 +63,7 @@ public class TransactionsController : Controller
         var result = await _validator.ValidateAsync(transaction, token);
             
         if (!result.IsValid)
-            return View(transaction);
+            return Ok(transaction);
 
         var relatedUser = await _userRepository.GetByKeyAsync(transaction.UserId, token);
         if (transaction.Type == TransactionType.Income && relatedUser!.Age < 18)
@@ -83,7 +83,7 @@ public class TransactionsController : Controller
         if (transactionViewModel is null)
             return NotFound();
 
-        return View(transactionViewModel);
+        return Ok(transactionViewModel);
     }
 
     // POST: Transactions/Edit/5
@@ -98,7 +98,7 @@ public class TransactionsController : Controller
             return NotFound();
 
         if (!result.IsValid)
-            return View(transaction);
+            return Ok(transaction);
         try
         {
             await _repository.UpdateAsync(transaction, token).ConfigureAwait(false);
@@ -123,7 +123,7 @@ public class TransactionsController : Controller
         if (transactionViewModel is null)
             return NotFound();
 
-        return View(transactionViewModel);
+        return Ok(transactionViewModel);
     }
 
     // POST: Transactions/Delete/5

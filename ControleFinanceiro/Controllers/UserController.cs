@@ -30,7 +30,7 @@ public class UserController : Controller
         }
 
         ViewBag.FinancialInfo = financialInfo;
-        return View(userList);
+        return Ok(userList);
     }
 
     // GET: User/Details/5
@@ -38,13 +38,13 @@ public class UserController : Controller
     {
         var user = await _repository.GetUserWithTransactions(id, cancellationToken);
 
-        return View(user);
+        return Ok(user);
     }
 
     // GET: User/Create
     public IActionResult Create()
     {
-        return View();
+        return Ok();
     }
 
     // POST: User/Create
@@ -54,7 +54,7 @@ public class UserController : Controller
         CancellationToken cancellationToken)
     {
         if (!ModelState.IsValid)
-            return View(user);
+            return Ok(user);
 
         if (!await _repository.AddAsync(user, cancellationToken))
             return Problem($"Wasn't able to save {user.Name}");
@@ -69,7 +69,7 @@ public class UserController : Controller
         if (user is null)
             return NotFound();
 
-        return View(user);
+        return Ok(user);
     }
 
     // POST: User/Edit/5
@@ -85,7 +85,7 @@ public class UserController : Controller
         }
 
         if (!ModelState.IsValid)
-            return View(user);
+            return Ok(user);
         try
         {
             await _repository.UpdateAsync(user, cancellationToken);
@@ -110,7 +110,7 @@ public class UserController : Controller
         if (userViewModel is null)
             return NotFound();
 
-        return View(userViewModel);
+        return Ok(userViewModel);
     }
 
     // POST: User/Delete/5

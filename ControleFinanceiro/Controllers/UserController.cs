@@ -41,12 +41,6 @@ public class UserController : Controller
         return Ok(user);
     }
 
-    // GET: User/Create
-    public IActionResult Create()
-    {
-        return Ok();
-    }
-
     // POST: User/Create
     [HttpPost]
     [ValidateAntiForgeryToken]
@@ -54,7 +48,7 @@ public class UserController : Controller
         CancellationToken cancellationToken)
     {
         if (!ModelState.IsValid)
-            return Ok(user);
+            return BadRequest(user);
 
         if (!await _repository.AddAsync(user, cancellationToken))
             return Problem($"Wasn't able to save {user.Name}");
@@ -62,30 +56,18 @@ public class UserController : Controller
         return RedirectToAction(nameof(Index));
     }
 
-    // GET: User/Edit/5
-    public async Task<IActionResult> Edit(int id, CancellationToken cancellationToken)
-    {
-        var user = await _repository.GetByKeyAsync(id, cancellationToken);
-        if (user is null)
-            return NotFound();
-
-        return Ok(user);
-    }
-
-    // POST: User/Edit/5
-    [HttpPost]
+    // PATCH: User/Edit/5
+    [HttpPatch]
     [ValidateAntiForgeryToken]
     public async Task<IActionResult> Edit(int id,
         [Bind("Id,Age,Name,Balance")] User user,
         CancellationToken cancellationToken)
     {
         if (id != user.Id)
-        {
             return NotFound();
-        }
 
         if (!ModelState.IsValid)
-            return Ok(user);
+            return BadRequest(user);
         try
         {
             await _repository.UpdateAsync(user, cancellationToken);
@@ -103,18 +85,8 @@ public class UserController : Controller
         return RedirectToAction(nameof(Index));
     }
 
-    // GET: User/Delete/5
-    public async Task<IActionResult> Delete(int id, CancellationToken cancellationToken)
-    {
-        var userViewModel = await _repository.GetByKeyAsync(id, cancellationToken);
-        if (userViewModel is null)
-            return NotFound();
-
-        return Ok(userViewModel);
-    }
-
-    // POST: User/Delete/5
-    [HttpPost, ActionName("Delete")]
+    // DELETE: User/Delete/5
+    [HttpDelete, ActionName("Delete")]
     [ValidateAntiForgeryToken]
     public async Task<IActionResult> DeleteConfirmed(int id, CancellationToken cancellationToken)
     {

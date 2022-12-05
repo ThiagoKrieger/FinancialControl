@@ -45,15 +45,6 @@ public class TransactionsController : Controller
         return Ok(transactionViewModel);
     }
 
-    // GET: Transactions/Create
-    public async Task<IActionResult> Create(CancellationToken token)
-    {
-        var userList = await _dataProvider.GetItems(token);
-        ViewBag.ListOfUser = userList;
-
-        return Ok();
-    }
-
     // POST: Transactions/Create
     [HttpPost]
     [ValidateAntiForgeryToken]
@@ -63,11 +54,8 @@ public class TransactionsController : Controller
         var result = await _validator.ValidateAsync(transaction, token);
             
         if (!result.IsValid)
-            return Ok(transaction);
+            return BadRequest(result);
 
-        var relatedUser = await _userRepository.GetByKeyAsync(transaction.UserId, token);
-        if (transaction.Type == TransactionType.Income && relatedUser!.Age < 18)
-            return Problem("Only over age users can have Incomes. Set the transaction type to outcome or select an ove age user.");
         if (!await _repository.AddAsync(transaction, token))
             return Problem($"Wasn't able to save the transaction {transaction.Description}");
 
@@ -75,19 +63,8 @@ public class TransactionsController : Controller
         return RedirectToAction(nameof(Index));
     }
 
-    // GET: Transactions/Edit/5
-    public async Task<IActionResult> Edit(int id, CancellationToken token)
-    {
-        var transactionViewModel = await _repository.GetByKeyAsync(id, token);
-
-        if (transactionViewModel is null)
-            return NotFound();
-
-        return Ok(transactionViewModel);
-    }
-
-    // POST: Transactions/Edit/5
-    [HttpPost]
+    // PATCH: Transactions/Edit/5
+    [HttpPatch]
     [ValidateAntiForgeryToken]
     public async Task<IActionResult> Edit(int id,
         [Bind("Id,Description,Value,Type,UserId")] Transaction transaction,
@@ -98,7 +75,7 @@ public class TransactionsController : Controller
             return NotFound();
 
         if (!result.IsValid)
-            return Ok(transaction);
+            return BadRequest(result);
         try
         {
             await _repository.UpdateAsync(transaction, token).ConfigureAwait(false);
@@ -115,19 +92,8 @@ public class TransactionsController : Controller
         return RedirectToAction(nameof(Index));
     }
 
-    // GET: Transactions/Delete/5
-    public async Task<IActionResult> Delete(int id, CancellationToken token)
-    {
-        var transactionViewModel = await _repository.GetByKeyAsync(id, token);
-
-        if (transactionViewModel is null)
-            return NotFound();
-
-        return Ok(transactionViewModel);
-    }
-
-    // POST: Transactions/Delete/5
-    [HttpPost, ActionName("Delete")]
+    // DELETE: Transactions/Delete/5
+    [HttpDelete, ActionName("Delete")]
     [ValidateAntiForgeryToken]
     public async Task<IActionResult> DeleteConfirmed(int id, CancellationToken token)
     {

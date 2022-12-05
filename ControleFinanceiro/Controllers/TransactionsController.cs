@@ -1,40 +1,36 @@
 using ControleFinanceiro.Domain.Models;
-using ControleFinanceiro.Domain.Models.Enums;
 using FluentValidation;
+using FluentValidation.AspNetCore;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Repository.Abstractions;
 
 namespace WebApplication1.Controllers;
 
+[ApiController]
+[Route("api/transaction")]
 public class TransactionsController : Controller
 {
     private readonly ITransactionRepository _repository;
     private readonly IValidator<Transaction> _validator;
-    private readonly IUserRepository _userRepository;
-    private readonly IUserDataProvider _dataProvider;
     private readonly IUserBusinessLogic _businessLogic;
 
     public TransactionsController(ITransactionRepository repository,
         IValidator<Transaction> validator,
-        IUserRepository userRepository,
-        IUserDataProvider dataProvider,
         IUserBusinessLogic businessLogic)
     {
         _repository = repository;
         _validator = validator;
-        _userRepository = userRepository;
-        _dataProvider = dataProvider;
         _businessLogic = businessLogic;
     }
 
-    // GET: Transactions
+    [HttpGet]
     public async Task<IActionResult> Index(CancellationToken token)
     {
         return Ok(await _repository.GetAsync(token));
     }
 
-    // GET: Transactions/Details/5
+    [HttpGet("details")]
     public async Task<IActionResult> Details(int id, CancellationToken token)
     {
         var transactionViewModel = await _repository.GetByKeyAsync(id, token);
@@ -46,15 +42,17 @@ public class TransactionsController : Controller
     }
 
     // POST: Transactions/Create
-    [HttpPost]
-    [ValidateAntiForgeryToken]
-    public async Task<IActionResult> Create([Bind("Description,Value,Type,UserId")] Transaction transaction,
+    [HttpPost("create")]
+    public async Task<IActionResult> Create(Transaction transaction,
         CancellationToken token)
     {
         var result = await _validator.ValidateAsync(transaction, token);
-            
+
         if (!result.IsValid)
-            return BadRequest(result);
+        {
+            result.AddToModelState(ModelState);
+            return ValidationProblem(ModelState);
+        }
 
         if (!await _repository.AddAsync(transaction, token))
             return Problem($"Wasn't able to save the transaction {transaction.Description}");
@@ -64,10 +62,9 @@ public class TransactionsController : Controller
     }
 
     // PATCH: Transactions/Edit/5
-    [HttpPatch]
-    [ValidateAntiForgeryToken]
+    [HttpPatch("edit")]
     public async Task<IActionResult> Edit(int id,
-        [Bind("Id,Description,Value,Type,UserId")] Transaction transaction,
+        Transaction transaction,
         CancellationToken token)
     {
         var result = await _validator.ValidateAsync(transaction, token);
@@ -75,7 +72,11 @@ public class TransactionsController : Controller
             return NotFound();
 
         if (!result.IsValid)
-            return BadRequest(result);
+        {
+            result.AddToModelState(ModelState);
+            return ValidationProblem(ModelState);
+        }
+
         try
         {
             await _repository.UpdateAsync(transaction, token).ConfigureAwait(false);
@@ -94,7 +95,6 @@ public class TransactionsController : Controller
 
     // DELETE: Transactions/Delete/5
     [HttpDelete, ActionName("Delete")]
-    [ValidateAntiForgeryToken]
     public async Task<IActionResult> DeleteConfirmed(int id, CancellationToken token)
     {
         var toDelete = await _repository.GetByKeyAsync(id, token);
@@ -102,7 +102,7 @@ public class TransactionsController : Controller
 
         if (!await _repository.RemoveAsync(id, token))
             return Problem("Wasn't able to delete the transaction");
-        if(userToUpdate != 0)
+        if (userToUpdate != 0)
             await _businessLogic.SetBalances(userToUpdate, token).ConfigureAwait(false);
         return RedirectToAction(nameof(Index));
     }

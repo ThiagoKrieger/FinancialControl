@@ -5,6 +5,8 @@ using Repository.Abstractions;
 
 namespace WebApplication1.Controllers;
 
+[ApiController]
+[Route("api/user")]
 public class UserController : Controller
 {
     private readonly IUserRepository _repository;
@@ -16,7 +18,7 @@ public class UserController : Controller
         _businessLogic = businessLogic;
     }
 
-    // GET: User
+    [HttpGet]
     public async Task<IActionResult> Index(CancellationToken cancellationToken)
     {
         var userList = (await _repository.GetAllUsersWithTransactions(cancellationToken)).ToList();
@@ -33,7 +35,7 @@ public class UserController : Controller
         return Ok(userList);
     }
 
-    // GET: User/Details/5
+    [HttpGet("details")]
     public async Task<IActionResult> Details(int id, CancellationToken cancellationToken)
     {
         var user = await _repository.GetUserWithTransactions(id, cancellationToken);
@@ -43,8 +45,7 @@ public class UserController : Controller
 
     // POST: User/Create
     [HttpPost]
-    [ValidateAntiForgeryToken]
-    public async Task<IActionResult> Create([Bind("Age,Name,Balance")] User user,
+    public async Task<IActionResult> Create(User user,
         CancellationToken cancellationToken)
     {
         if (!ModelState.IsValid)
@@ -58,9 +59,8 @@ public class UserController : Controller
 
     // PATCH: User/Edit/5
     [HttpPatch]
-    [ValidateAntiForgeryToken]
     public async Task<IActionResult> Edit(int id,
-        [Bind("Id,Age,Name,Balance")] User user,
+        User user,
         CancellationToken cancellationToken)
     {
         if (id != user.Id)
@@ -87,7 +87,6 @@ public class UserController : Controller
 
     // DELETE: User/Delete/5
     [HttpDelete, ActionName("Delete")]
-    [ValidateAntiForgeryToken]
     public async Task<IActionResult> DeleteConfirmed(int id, CancellationToken cancellationToken)
     {
         return await _repository.RemoveAsync(id, cancellationToken)

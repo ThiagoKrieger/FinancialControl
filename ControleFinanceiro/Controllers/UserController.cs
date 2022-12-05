@@ -16,39 +16,46 @@ public class UserController : Controller
     private readonly IUserRepository _repository;
     private readonly IValidator<User> _validator;
     private readonly IRequestToUserTransformation _fromRequestTransformation;
-    private readonly IUserTransformation _toResponseTransformation;
+    private readonly IUserToResponseTransformation _toResponseToResponseTransformation;
 
     public UserController(IUserRepository userRepository,
         IValidator<User> validator,
         IRequestToUserTransformation fromRequestTransformation,
-        IUserTransformation toResponseTransformation
+        IUserToResponseTransformation toResponseToResponseTransformation
         )
     {
         _repository = userRepository;
         _validator = validator;
         _fromRequestTransformation = fromRequestTransformation;
-        _toResponseTransformation = toResponseTransformation;
+        _toResponseToResponseTransformation = toResponseToResponseTransformation;
     }
 
+    /// <summary>
+    /// This returns all the existing users
+    /// </summary>
     [HttpGet]
     public async Task<IActionResult> Index(CancellationToken cancellationToken)
     {
         var userList = (await _repository.GetAllUsersWithTransactions(cancellationToken)).ToList();
-        var response = await _toResponseTransformation.TransformToMany(userList, cancellationToken); 
+        var response = await _toResponseToResponseTransformation.TransformToMany(userList, cancellationToken); 
 
         return Ok(response);
     }
-
+    /// <summary>
+    /// This returns an specific user
+    /// </summary>
     [HttpGet("details")]
     public async Task<IActionResult> Details(int id, CancellationToken cancellationToken)
     {
         var user = await _repository.GetUserWithTransactions(id, cancellationToken);
-        var response = await _toResponseTransformation.TransformTo(user, cancellationToken);
+        var response = await _toResponseToResponseTransformation.TransformTo(user, cancellationToken);
 
         return Ok(response);
     }
 
-    // POST: User/Create
+    /// <summary>
+    /// This creates an user
+    /// </summary>
     [HttpPost]
     public async Task<IActionResult> Create(UserRequest userRequest,
         CancellationToken cancellationToken)
@@ -67,7 +74,9 @@ public class UserController : Controller
         return RedirectToAction(nameof(Index));
     }
 
-    // PATCH: User/Edit/5
+    /// <summary>
+    /// This edits an existing user
+    /// </summary>
     [HttpPatch]
     public async Task<IActionResult> Edit(int id,
         UserRequest userRequest,
@@ -99,12 +108,16 @@ public class UserController : Controller
         return Ok(updatedUser);
     }
 
-    // DELETE: User/Delete/5
+    /// <summary>
+    /// This deletes an existing user
+    /// </summary>
+    /// <returns>All existing users</returns>
+    /// <returns>NotFound</returns>
     [HttpDelete, ActionName("Delete")]
     public async Task<IActionResult> DeleteConfirmed(int id, CancellationToken cancellationToken)
     {
         return await _repository.RemoveAsync(id, cancellationToken)
             ? RedirectToAction(nameof(Index))
-            : Problem("There is no such entity in database to be deleted");
+            : NotFound("There is no such entity in database to be deleted");
     }
 }

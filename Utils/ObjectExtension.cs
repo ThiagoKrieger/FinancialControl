@@ -1,7 +1,4 @@
-﻿using System.ComponentModel.DataAnnotations.Schema;
-using System.Reflection;
-
-namespace Utils;
+﻿namespace Utils;
 
 public static class ObjectExtension
 {

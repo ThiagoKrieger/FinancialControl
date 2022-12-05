@@ -11,10 +11,18 @@ public interface ITransformation<in TEntity, TResult> where TResult : class, new
     public Task<List<TResult>> TransformToMany(IEnumerable<TEntity?> entities, CancellationToken token);
 }
 
-public interface IUserTransformation : ITransformation<User, UserResponse>
+public interface IUserToResponseTransformation : ITransformation<User, UserResponse>
 {
 }
 
 public interface IRequestToUserTransformation : ITransformation<UserRequest, User>
+{
+}
+
+public interface ITransactionToResponseTransformation : ITransformation<Transaction, TransactionResponse>
+{
+}
+
+public interface IRequestToTransactionTransformation : ITransformation<TransactionRequest, Transaction>
 {
 }

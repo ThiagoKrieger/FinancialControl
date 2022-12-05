@@ -1,6 +1,4 @@
-﻿using ControleFinanceiro.Domain.Models;
-
-namespace WebApplication1.Contracts.Request;
+﻿namespace WebApplication1.Contracts.Request;
 
 public class UserRequest
 {

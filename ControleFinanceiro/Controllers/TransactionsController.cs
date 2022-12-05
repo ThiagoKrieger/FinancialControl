@@ -4,6 +4,8 @@ using FluentValidation.AspNetCore;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Repository.Abstractions;
+using WebApplication1.Contracts.Request;
+using WebApplication1.Contracts.Transformations;
 
 namespace WebApplication1.Controllers;
 
@@ -13,39 +15,62 @@ public class TransactionsController : Controller
 {
     private readonly ITransactionRepository _repository;
     private readonly IValidator<Transaction> _validator;
+    private readonly ITransactionToResponseTransformation _toResponseTransformation;
+    private readonly IRequestToTransactionTransformation _fromRequestTransformation;
     private readonly IUserBusinessLogic _businessLogic;
 
     public TransactionsController(ITransactionRepository repository,
         IValidator<Transaction> validator,
+        ITransactionToResponseTransformation toResponseTransformation,
+        IRequestToTransactionTransformation fromRequestTransformation,
         IUserBusinessLogic businessLogic)
     {
         _repository = repository;
         _validator = validator;
+        _toResponseTransformation = toResponseTransformation;
+        _fromRequestTransformation = fromRequestTransformation;
         _businessLogic = businessLogic;
     }
 
+    /// <summary>
+    /// Return all the transactions
+    /// </summary>
     [HttpGet]
     public async Task<IActionResult> Index(CancellationToken token)
     {
-        return Ok(await _repository.GetAsync(token));
+        var transactions = await _repository.GetAsync(token);
+        var responses = await _toResponseTransformation.TransformToMany(transactions, token);
+        return Ok(responses);
     }
 
+    /// <summary>
+    /// This return a specific transaction
+    /// </summary>
     [HttpGet("details")]
     public async Task<IActionResult> Details(int id, CancellationToken token)
     {
-        var transactionViewModel = await _repository.GetByKeyAsync(id, token);
-
-        if (transactionViewModel is null)
+        var transaction = await _repository.GetByKeyAsync(id, token);
+        if (transaction is null)
             return NotFound();
+        
+        var response = await _toResponseTransformation.TransformTo(transaction, token);
 
-        return Ok(transactionViewModel);
+        return Ok(response);
     }
 
-    // POST: Transactions/Create
+    /// <summary>
+    /// This create a new Transaction
+    /// </summary>
+    /// <remarks>
+    ///   Possible transaction values:
+    ///         Income,
+    ///         Outcome
+    /// </remarks>
     [HttpPost("create")]
-    public async Task<IActionResult> Create(Transaction transaction,
+    public async Task<IActionResult> Create(TransactionRequest transactionRequest,
         CancellationToken token)
     {
+        var transaction = await _fromRequestTransformation.TransformTo(transactionRequest, token);
         var result = await _validator.ValidateAsync(transaction, token);
 
         if (!result.IsValid)
@@ -61,16 +86,25 @@ public class TransactionsController : Controller
         return RedirectToAction(nameof(Index));
     }
 
-    // PATCH: Transactions/Edit/5
-    [HttpPatch("edit")]
+    /// <summary>
+    /// This edits a existing Transaction
+    /// </summary>
+    /// <remarks>
+    ///   Possible transaction values:
+    ///         Income,
+    ///         Outcome
+    /// </remarks>
+    [HttpPatch]
     public async Task<IActionResult> Edit(int id,
-        Transaction transaction,
+        TransactionRequest transactionRequest,
         CancellationToken token)
     {
+        var transaction = await _repository.GetByKeyAsync(id, token);
+        if (transaction is null)
+            return NotFound(transactionRequest);
+        await _fromRequestTransformation.TransformTo(transactionRequest, transaction, token);
         var result = await _validator.ValidateAsync(transaction, token);
-        if (id != transaction.Id)
-            return NotFound();
-
+        
         if (!result.IsValid)
         {
             result.AddToModelState(ModelState);
@@ -90,10 +124,17 @@ public class TransactionsController : Controller
             throw;
         }
 
-        return RedirectToAction(nameof(Index));
+        return await Index(token);
     }
 
-    // DELETE: Transactions/Delete/5
+    /// <summary>
+    /// This deletes a existing Transaction
+    /// </summary>
+    /// <remarks>
+    ///   Possible transaction values:
+    ///         Income,
+    ///         Outcome
+    /// </remarks>
     [HttpDelete, ActionName("Delete")]
     public async Task<IActionResult> DeleteConfirmed(int id, CancellationToken token)
     {

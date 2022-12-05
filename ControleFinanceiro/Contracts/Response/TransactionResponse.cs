@@ -1,12 +1,12 @@
 ﻿using ControleFinanceiro.Domain.Models.Enums;
-using Domain.Abstractions;
 
-namespace ControleFinanceiro.Domain.Models;
+namespace WebApplication1.Contracts.Response;
 
-public class Transaction : IEntity
+public class TransactionResponse
 {
     public int Id { get; set; }
     public string Description { get; set; } = string.Empty;
+    public string UserName { get; set; } = string.Empty;
     public float Value { get; set; }
     public TransactionType Type { get; set; }
     public int UserId { get; set; }

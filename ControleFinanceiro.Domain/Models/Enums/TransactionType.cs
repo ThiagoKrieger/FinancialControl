@@ -1,11 +1,10 @@
-﻿using System.ComponentModel.DataAnnotations;
+﻿using System.Text.Json.Serialization;
 
 namespace ControleFinanceiro.Domain.Models.Enums;
 
+[JsonConverter(typeof(JsonStringEnumConverter))]
 public enum TransactionType
 {
-    [Display(Name = "Income")]
     Income,
-    [Display(Name = "Outcome")]
     Outcome
 }

@@ -1,121 +1,123 @@
 ﻿using ControleFinanceiro.Domain.Models;
+using FluentValidation;
+using FluentValidation.AspNetCore;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Repository.Abstractions;
+using WebApplication1.Contracts.Request;
+using WebApplication1.Contracts.Transformations;
 
 namespace WebApplication1.Controllers;
 
+[ApiController]
+[Route("api/user")]
 public class UserController : Controller
 {
     private readonly IUserRepository _repository;
+    private readonly IValidator<User> _validator;
+    private readonly IRequestToUserTransformation _fromRequestTransformation;
+    private readonly IUserToResponseTransformation _toResponseToResponseTransformation;
 
-    public UserController(IUserRepository userRepository)
+    public UserController(IUserRepository userRepository,
+        IValidator<User> validator,
+        IRequestToUserTransformation fromRequestTransformation,
+        IUserToResponseTransformation toResponseToResponseTransformation
+        )
     {
         _repository = userRepository;
+        _validator = validator;
+        _fromRequestTransformation = fromRequestTransformation;
+        _toResponseToResponseTransformation = toResponseToResponseTransformation;
     }
 
-    // GET: User
+    /// <summary>
+    /// This returns all the existing users
+    /// </summary>
+    [HttpGet]
     public async Task<IActionResult> Index(CancellationToken cancellationToken)
     {
-        var userList = await _repository.GetAsync(cancellationToken);
+        var userList = (await _repository.GetAllUsersWithTransactions(cancellationToken)).ToList();
+        var response = await _toResponseToResponseTransformation.TransformToMany(userList, cancellationToken); 
 
-        return View(userList);
+        return Ok(response);
     }
-
-    // GET: User/Details/5
+    /// <summary>
+    /// This returns an specific user
+    /// </summary>
+    [HttpGet("details")]
     public async Task<IActionResult> Details(int id, CancellationToken cancellationToken)
     {
         var user = await _repository.GetUserWithTransactions(id, cancellationToken);
-        if (user is null)
-            return NotFound();
+        var response = await _toResponseToResponseTransformation.TransformTo(user, cancellationToken);
 
-        return View(user);
+        return Ok(response);
     }
 
-    // GET: User/Create
-    public IActionResult Create()
-    {
-        return View();
-    }
-
-    // POST: User/Create
+    /// <summary>
+    /// This creates an user
+    /// </summary>
     [HttpPost]
-    [ValidateAntiForgeryToken]
-    public async Task<IActionResult> Create([Bind("Age,Name,Balance")] User user,
+    public async Task<IActionResult> Create(UserRequest userRequest,
         CancellationToken cancellationToken)
     {
-        if (!ModelState.IsValid)
-            return View(user);
+        var user = await _fromRequestTransformation.TransformTo(userRequest, cancellationToken);
+        var result = await _validator.ValidateAsync(user, cancellationToken);
+        if (!result.IsValid)
+        {
+            result.AddToModelState(ModelState);
+            return ValidationProblem(ModelState);
+        }
 
         if (!await _repository.AddAsync(user, cancellationToken))
-            return Problem($"Wasn't able to save {user.Name}");
+            return Problem($"Wasn't able to save {userRequest.Name}");
 
         return RedirectToAction(nameof(Index));
     }
 
-    // GET: User/Edit/5
-    public async Task<IActionResult> Edit(int id, CancellationToken cancellationToken)
-    {
-        var user = await _repository.GetByKeyAsync(id, cancellationToken);
-        if (user is null)
-            return NotFound();
-
-        return View(user);
-    }
-
-    // POST: User/Edit/5
-    [HttpPost]
-    [ValidateAntiForgeryToken]
+    /// <summary>
+    /// This edits an existing user
+    /// </summary>
+    [HttpPatch]
     public async Task<IActionResult> Edit(int id,
-        [Bind("Id,Age,Name,Balance")] User user,
+        UserRequest userRequest,
         CancellationToken cancellationToken)
     {
-        if (id != user.Id)
-        {
+        var userToUpdate = await _repository.GetByKeyAsync(id, cancellationToken);
+        if (userToUpdate is null)
             return NotFound();
+        
+        var userFromRequest = await _fromRequestTransformation.TransformTo(userRequest, userToUpdate, cancellationToken);
+        
+        var result = await _validator.ValidateAsync(userFromRequest, cancellationToken);
+        if (!result.IsValid)
+        {
+            result.AddToModelState(ModelState);
+            return ValidationProblem(ModelState);
         }
 
-        if (!ModelState.IsValid)
-            return View(user);
         try
         {
-            await _repository.UpdateAsync(user, cancellationToken);
+            await _repository.UpdateAsync(userFromRequest, cancellationToken);
         }
-        catch (DbUpdateConcurrencyException)
+        catch (DbUpdateConcurrencyException e)
         {
-            if (!await UserViewModelExists(user.Id, cancellationToken))
-            {
-                return NotFound();
-            }
-
-            throw;
+            return NotFound(e.Message);
         }
 
-        return RedirectToAction(nameof(Index));
+        var updatedUser = await _repository.GetUserWithTransactions(id, cancellationToken);
+        return Ok(updatedUser);
     }
 
-    // GET: User/Delete/5
-    public async Task<IActionResult> Delete(int id, CancellationToken cancellationToken)
-    {
-        var userViewModel = await _repository.GetByKeyAsync(id, cancellationToken);
-        if (userViewModel is null)
-            return NotFound();
-
-        return View(userViewModel);
-    }
-
-    // POST: User/Delete/5
-    [HttpPost, ActionName("Delete")]
-    [ValidateAntiForgeryToken]
+    /// <summary>
+    /// This deletes an existing user
+    /// </summary>
+    /// <returns>All existing users</returns>
+    /// <returns>NotFound</returns>
+    [HttpDelete, ActionName("Delete")]
     public async Task<IActionResult> DeleteConfirmed(int id, CancellationToken cancellationToken)
     {
         return await _repository.RemoveAsync(id, cancellationToken)
             ? RedirectToAction(nameof(Index))
-            : Problem("There is no such entity in database to be deleted");
-    }
-
-    private async Task<bool> UserViewModelExists(int id, CancellationToken token)
-    {
-        return await _repository.GetByKeyAsync(id, token) is not null;
+            : NotFound("There is no such entity in database to be deleted");
     }
 }

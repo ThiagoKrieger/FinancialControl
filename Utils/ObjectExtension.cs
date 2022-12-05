@@ -1,7 +1,4 @@
-﻿using System.ComponentModel.DataAnnotations.Schema;
-using System.Reflection;
-
-namespace Utils;
+﻿namespace Utils;
 
 public static class ObjectExtension
 {
@@ -27,12 +24,6 @@ public static class ObjectExtension
         foreach (var (name, sourceProperty) in sourceProperties)
         {
             if (!targetProperties.TryGetValue(name, out var targetProperty))
-                continue;
-
-            if (targetProperty.IsDefined(typeof(NotMappedAttribute)))
-                continue;
-
-            if (!targetProperty.PropertyType.IsValueType && targetProperty.PropertyType != typeof(string))
                 continue;
 
             var sourceValue = sourceProperty.GetValue(source, null);

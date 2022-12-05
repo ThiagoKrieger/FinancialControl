@@ -1,3 +1,8 @@
-﻿namespace Repository.Abstractions;
+﻿using Domain.Abstractions;
 
-public interface IUserDataProvider : IDataProvider { }
+namespace Repository.Abstractions;
+
+public interface IUserDataProvider : IDataProvider
+{
+    Task<IList<IDataProviderItem>> GetItemsForMajorUsers(CancellationToken token);
+}
